@@ -24,3 +24,9 @@ git push origin v0.1.0
 3. Open GitHub:
 - `Actions` tab: wait for `Release Tauri App` workflow to finish.
 - `Releases` tab: download generated installers for macOS, Windows, Linux.
+
+If a release job fails, you can run it again manually:
+
+1. Open `Actions` -> `Release Tauri App`.
+2. Click `Run workflow`.
+3. Set `tag_name` (for example `v0.1.0`).
