@@ -1,4 +1,4 @@
-# Postman Lite (Tauri)
+# ReqLite (Tauri)
 
 Desktop mini-Postman built with Tauri + React + Rust.
 
@@ -17,8 +17,8 @@ Workflow is configured in `.github/workflows/release.yml`.
 2. Create and push a version tag:
 
 ```bash
-git tag v0.1.0
-git push origin v0.1.0
+git tag v0.1.1
+git push origin v0.1.1
 ```
 
 3. Open GitHub:
@@ -29,4 +29,4 @@ If a release job fails, you can run it again manually:
 
 1. Open `Actions` -> `Release Tauri App`.
 2. Click `Run workflow`.
-3. Set `tag_name` (for example `v0.1.0`).
+3. Set `tag_name` (for example `v0.1.1`).
