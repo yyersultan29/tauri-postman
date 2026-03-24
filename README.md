@@ -2,6 +2,17 @@
 
 Desktop mini-Postman built with Tauri + React + Rust.
 
+## Persistent Context
+
+For every new session (including Codex), start here:
+
+1. `AGENTS.md`
+2. `docs/PROJECT_CONTEXT.md`
+3. `docs/HANDOFF.md`
+4. `docs/DECISIONS.md`
+
+These files are the persistent memory of project state, decisions, and next steps.
+
 ## Local Development
 
 ```bash
