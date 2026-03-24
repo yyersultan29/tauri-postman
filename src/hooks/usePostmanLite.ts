@@ -8,10 +8,20 @@ import {
   createTab,
   formatBody,
   getInitialActiveTabId,
+  isValidHttpUrl,
   loadInitialTabs,
   serializeTabs,
 } from "../lib/tab-utils";
-import { HttpMethod, HttpRequestPayload, HttpResponsePayload, NoticeState, NoticeTone, RequestTab, TabSeed, Theme } from "../types";
+import {
+  HttpMethod,
+  HttpRequestPayload,
+  HttpResponsePayload,
+  NoticeState,
+  NoticeTone,
+  RequestTab,
+  TabSeed,
+  Theme,
+} from "../types";
 
 function getInitialTheme(): Theme {
   const storedTheme = localStorage.getItem(THEME_STORAGE_KEY);
@@ -41,6 +51,20 @@ export function usePostmanLite() {
 
   const activeTab = useMemo(() => tabs.find((tab) => tab.id === activeTabId) ?? tabs[0] ?? null, [tabs, activeTabId]);
   const activeResponse = activeTab?.response ?? null;
+  const activeAuthToken = useMemo(() => {
+    if (!activeTab) {
+      return "";
+    }
+
+    const authorizationHeader = activeTab.headers.find((header) => header.key.trim().toLowerCase() === "authorization");
+    if (!authorizationHeader) {
+      return "";
+    }
+
+    const value = authorizationHeader.value.trim();
+    const bearerMatch = value.match(/^bearer\s+(.+)$/i);
+    return bearerMatch ? bearerMatch[1] : value;
+  }, [activeTab]);
 
   const bodyJsonMode = useMemo(() => canUseJsonMode(activeTab?.body ?? ""), [activeTab?.body]);
   const responseJsonMode = useMemo(() => canUseJsonMode(activeResponse?.body ?? ""), [activeResponse?.body]);
@@ -199,6 +223,44 @@ export function usePostmanLite() {
     [activeTabId, updateTab]
   );
 
+  const onAuthTokenChange = useCallback(
+    (token: string): void => {
+      if (!activeTabId) {
+        return;
+      }
+
+      const normalizedToken = token.trim();
+      updateTab(activeTabId, (tab) => {
+        const authorizationIndex = tab.headers.findIndex((header) => header.key.trim().toLowerCase() === "authorization");
+        const nextHeaders = [...tab.headers];
+
+        if (!normalizedToken) {
+          if (authorizationIndex >= 0) {
+            nextHeaders.splice(authorizationIndex, 1);
+          }
+        } else {
+          const authorizationValue = `Bearer ${normalizedToken}`;
+          if (authorizationIndex >= 0) {
+            nextHeaders[authorizationIndex] = {
+              ...nextHeaders[authorizationIndex],
+              key: "Authorization",
+              value: authorizationValue,
+            };
+          } else {
+            nextHeaders.push(createHeaderEntry("Authorization", authorizationValue));
+          }
+        }
+
+        return {
+          ...tab,
+          headers: nextHeaders.length > 0 ? nextHeaders : [createHeaderEntry("Accept", "application/json")],
+          error: "",
+        };
+      });
+    },
+    [activeTabId, updateTab]
+  );
+
   const sendRequest = useCallback(
     async (tabId: string): Promise<void> => {
       const tab = tabsRef.current.find((item) => item.id === tabId);
@@ -214,6 +276,16 @@ export function usePostmanLite() {
         return;
       }
 
+      const normalizedUrl = tab.url.trim();
+      if (!isValidHttpUrl(normalizedUrl)) {
+        updateTab(tabId, (currentTab) => ({
+          ...currentTab,
+          error: "Use a valid URL with http:// or https:// (example: https://api.example.com/users).",
+        }));
+        showNotice("error", "Please enter a full URL with http:// or https://.");
+        return;
+      }
+
       const headers = tab.headers.reduce<Record<string, string>>((accumulator, header) => {
         const key = header.key.trim();
         if (!key) {
@@ -226,7 +298,7 @@ export function usePostmanLite() {
 
       const payload: HttpRequestPayload = {
         method: tab.method,
-        url: tab.url.trim(),
+        url: normalizedUrl,
       };
 
       if (Object.keys(headers).length > 0) {
@@ -260,7 +332,7 @@ export function usePostmanLite() {
         }));
       }
     },
-    [updateTab]
+    [showNotice, updateTab]
   );
 
   const copyToClipboard = useCallback(
@@ -395,6 +467,7 @@ export function usePostmanLite() {
 
   return {
     activeResponse,
+    activeAuthToken,
     activeTab,
     activeTabId,
     bodyJsonMode,
@@ -403,6 +476,7 @@ export function usePostmanLite() {
     notice,
     onAddHeader: addHeaderRow,
     onAddTab,
+    onAuthTokenChange,
     onBodyChange,
     onClearBody: clearActiveBody,
     onCopyCurl,

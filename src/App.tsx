@@ -12,9 +12,7 @@ function App() {
     <main className="app-shell">
       <WorkspaceHeader
         theme={vm.theme}
-        hasActiveTab={Boolean(vm.activeTab)}
         onAddTab={vm.onAddTab}
-        onDuplicateTab={vm.duplicateActiveTab}
         onToggleTheme={vm.onToggleTheme}
       />
 
@@ -23,10 +21,12 @@ function App() {
       <div className="workspace-grid">
         <RequestPanel
           activeTab={vm.activeTab}
+          activeAuthToken={vm.activeAuthToken}
           bodyJsonMode={vm.bodyJsonMode}
           notice={vm.notice}
           theme={vm.theme}
           onSubmit={vm.onSubmit}
+          onAuthTokenChange={vm.onAuthTokenChange}
           onTitleChange={vm.onTitleChange}
           onMethodChange={vm.onMethodChange}
           onUrlChange={vm.onUrlChange}

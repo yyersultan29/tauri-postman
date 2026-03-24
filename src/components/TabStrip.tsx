@@ -1,5 +1,6 @@
 import { memo } from "react";
 import { RequestTab } from "../types";
+import { getStatusTone } from "../lib/tab-utils";
 
 type TabStripProps = {
   tabs: RequestTab[];
@@ -16,6 +17,7 @@ export const TabStrip = memo(function TabStrip({ tabs, activeTabId, onSelect, on
           <button className="tab-main" type="button" onClick={() => onSelect(tab.id)}>
             <span className={`method-pill method-${tab.method.toLowerCase()}`}>{tab.method}</span>
             <span className="tab-name">{tab.title}</span>
+            {tab.response ? <span className={`badge badge-${getStatusTone(tab.response.status)}`}>{tab.response.status}</span> : null}
             {tab.isSending ? <span className="tab-sending">Sending...</span> : null}
           </button>
           <button

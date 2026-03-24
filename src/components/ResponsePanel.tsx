@@ -1,7 +1,7 @@
 import { memo } from "react";
 import { JsonCodeEditor } from "./JsonCodeEditor";
 import { Theme, HttpResponsePayload } from "../types";
-import { getDurationTone, getStatusTone } from "../lib/tab-utils";
+import { formatBytes, formatDuration, getBodySizeBytes, getDurationTone, getStatusTone } from "../lib/tab-utils";
 
 type ResponsePanelProps = {
   response: HttpResponsePayload | null;
@@ -20,29 +20,33 @@ export const ResponsePanel = memo(function ResponsePanel({
   onCopyBody,
   onCopyHeaders,
 }: ResponsePanelProps) {
+  const bodySize = response ? formatBytes(getBodySizeBytes(response.body)) : "0 B";
+
   return (
     <section className="panel response-panel">
       <div className="response-top">
         <h2>Response</h2>
         {response ? (
-          <div className="response-meta-tools">
-            <div className="meta-row">
-              <span className={`badge badge-${getStatusTone(response.status)}`}>Status: {response.status}</span>
-              <span className={`badge badge-${getDurationTone(response.durationMs)}`}>Time: {response.durationMs} ms</span>
-            </div>
-            <div className="response-tools">
-              <button className="tiny-button" type="button" onClick={onCopyBody}>
-                Copy Body
-              </button>
-              <button className="tiny-button" type="button" onClick={onCopyHeaders}>
-                Copy Headers
-              </button>
-            </div>
+          <div className="response-tools">
+            <button className="tiny-button" type="button" onClick={onCopyBody}>
+              Copy Body
+            </button>
+            <button className="tiny-button" type="button" onClick={onCopyHeaders}>
+              Copy Headers
+            </button>
           </div>
-        ) : (
-          <p className="muted-text">No response yet</p>
-        )}
+        ) : null}
       </div>
+
+      {response ? (
+        <div className="response-meta-row">
+          <span className={`badge badge-${getStatusTone(response.status)}`}>Status {response.status}</span>
+          <span className={`badge badge-${getDurationTone(response.durationMs)}`}>Time {formatDuration(response.durationMs)}</span>
+          <span className="badge">Size {bodySize}</span>
+        </div>
+      ) : (
+        <p className="muted-text">Send a request to see response data.</p>
+      )}
 
       <label className="field">
         <span>Headers</span>

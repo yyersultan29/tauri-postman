@@ -1,6 +1,6 @@
 # PROJECT_CONTEXT.md
 
-Last updated: 2026-03-24
+Last updated: 2026-03-25
 Project: ReqLite (desktop API client)
 
 ## Product Goal
@@ -67,4 +67,4 @@ xattr -dr com.apple.quarantine "/Applications/ReqLite.app"
 ```
 
 ## Current Released Version
-- `v0.1.1`
+- `v0.1.2`

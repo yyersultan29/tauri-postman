@@ -96,16 +96,8 @@ export function canUseJsonMode(value: string): boolean {
     return true;
   }
 
-  if (!(trimmed.startsWith("{") || trimmed.startsWith("["))) {
-    return false;
-  }
-
-  try {
-    JSON.parse(trimmed);
-    return true;
-  } catch {
-    return false;
-  }
+  // Keep JSON syntax mode active while user is still typing incomplete JSON.
+  return trimmed.startsWith("{") || trimmed.startsWith("[");
 }
 
 export function getStatusTone(status: number): BadgeTone {
@@ -116,6 +108,71 @@ export function getStatusTone(status: number): BadgeTone {
     return "danger";
   }
   return "warning";
+}
+
+export function getStatusLabel(status: number): string {
+  if (status >= 200 && status < 300) {
+    return "Success";
+  }
+
+  if (status >= 300 && status < 400) {
+    return "Redirect";
+  }
+
+  if (status >= 400 && status < 500) {
+    return "Client error";
+  }
+
+  if (status >= 500) {
+    return "Server error";
+  }
+
+  return "Informational";
+}
+
+export function formatDuration(durationMs: number): string {
+  if (durationMs < 1000) {
+    return `${durationMs} ms`;
+  }
+
+  if (durationMs < 10_000) {
+    return `${(durationMs / 1000).toFixed(2)} s`;
+  }
+
+  return `${(durationMs / 1000).toFixed(1)} s`;
+}
+
+export function getBodySizeBytes(body: string): number {
+  return new TextEncoder().encode(body).length;
+}
+
+export function formatBytes(bytes: number): string {
+  if (bytes < 1024) {
+    return `${bytes} B`;
+  }
+
+  if (bytes < 1_048_576) {
+    return `${(bytes / 1024).toFixed(1)} KB`;
+  }
+
+  return `${(bytes / 1_048_576).toFixed(2)} MB`;
+}
+
+export function isValidHttpUrl(value: string): boolean {
+  try {
+    const parsed = new URL(value);
+    return parsed.protocol === "http:" || parsed.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
+export function extractUrlHost(value: string): string {
+  try {
+    return new URL(value).host;
+  } catch {
+    return "";
+  }
 }
 
 export function getDurationTone(durationMs: number): BadgeTone {
