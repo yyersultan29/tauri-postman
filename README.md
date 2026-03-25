@@ -41,3 +41,5 @@ If a release job fails, you can run it again manually:
 1. Open `Actions` -> `Release Tauri App`.
 2. Click `Run workflow`.
 3. Set `tag_name` (for example `v0.1.1`).
+
+![alt text](image.png)
