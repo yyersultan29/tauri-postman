@@ -43,3 +43,17 @@ Architecture and UX decisions log.
 - default view now emphasizes only method, URL, send, and compact utilities
 - optional complexity moved to collapsible `Body`, `Auth`, and `Headers` sections
 - response area simplified to core badges (status, time, size) plus raw headers/body
+
+## 2026-03-25 - Lazy-load CodeMirror editor runtime
+- Decision: load `JsonCodeEditor` via dynamic import (`LazyJsonCodeEditor`) instead of bundling it into initial app chunk.
+- Why: reduce startup JS size and avoid paying editor cost before user needs it.
+- Implementation:
+- `RequestPanel` and `ResponsePanel` now render `LazyJsonCodeEditor`
+- response editor is mounted only when a response exists
+
+## 2026-03-25 - Guard response auto-formatting and persistence pressure
+- Decision: auto pretty-format only JSON responses up to `256KB`, and schedule tab persistence with longer debounce + idle callback.
+- Why: large body parsing and frequent localStorage writes were avoidable CPU work during active typing/testing flows.
+- Implementation:
+- added `shouldAutoFormatResponseBody` helper in `src/lib/tab-utils.ts`
+- `usePostmanLite` now applies conditional formatting and writes tabs with `700ms` debounce + `requestIdleCallback`

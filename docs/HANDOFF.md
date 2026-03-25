@@ -16,7 +16,7 @@ Last release commit: `v0.1.2` tag
 - status/time color badges
 
 ## Known Gaps / Risks
-- Vite warns about chunk size > 500kb (not blocking, but optimization target).
+- Local builds on Node `22.11.0` show a Vite compatibility warning (recommended `22.12+`).
 - No automated test suite yet (manual verification only).
 
 ## Priority Backlog
@@ -66,6 +66,16 @@ Last release commit: `v0.1.2` tag
 - Included UI simplification + JSON highlight + form sizing fixes in the release payload.
 - Verified `pnpm build` on release version.
 - Next: monitor release assets from GitHub Actions and gather first usability feedback from non-technical users.
+
+### 2026-03-25 (Performance optimization + release prep v0.1.3)
+- Split CodeMirror into a lazy-loaded chunk via new `LazyJsonCodeEditor` wrapper and switched request/response editors to use it.
+- Avoided mounting response CodeMirror until a response exists (uses lightweight placeholder textarea in empty state).
+- Reduced font payload by switching to latin/cyrillic subset imports in `src/main.tsx`.
+- Updated tab persistence to a slower debounce (`700ms`) plus `requestIdleCallback` scheduling to cut write pressure while typing.
+- Limited auto pretty-formatting to JSON responses under `256KB`; larger/non-JSON responses stay raw to reduce parse overhead.
+- Aligned release versions to `0.1.3` in `package.json`, `src-tauri/Cargo.toml`, and `src-tauri/tauri.conf.json` (plus `src-tauri/Cargo.lock` package entry).
+- Verified `pnpm build` successfully after optimization and version bump.
+- Next: run manual QA in `pnpm tauri dev`, then publish `v0.1.3` tag for GitHub Actions release artifacts.
 
 ## Bootstrap Checklist (for next Codex run)
 1. Read `AGENTS.md`.

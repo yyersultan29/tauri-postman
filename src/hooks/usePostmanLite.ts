@@ -11,6 +11,7 @@ import {
   isValidHttpUrl,
   loadInitialTabs,
   serializeTabs,
+  shouldAutoFormatResponseBody,
 } from "../lib/tab-utils";
 import {
   HttpMethod,
@@ -99,12 +100,23 @@ export function usePostmanLite() {
   }, [notice]);
 
   useEffect(() => {
+    let idleId: number | null = null;
     const timeoutId = window.setTimeout(() => {
+      if (typeof window.requestIdleCallback === "function") {
+        idleId = window.requestIdleCallback(() => {
+          localStorage.setItem(TABS_STORAGE_KEY, serializeTabs(tabs));
+        }, { timeout: 1000 });
+        return;
+      }
+
       localStorage.setItem(TABS_STORAGE_KEY, serializeTabs(tabs));
-    }, 120);
+    }, 700);
 
     return () => {
       window.clearTimeout(timeoutId);
+      if (idleId !== null && typeof window.cancelIdleCallback === "function") {
+        window.cancelIdleCallback(idleId);
+      }
     };
   }, [tabs]);
 
@@ -317,9 +329,12 @@ export function usePostmanLite() {
 
       try {
         const result = await invoke<HttpResponsePayload>("send_http", { req: payload });
+        const responseBody = shouldAutoFormatResponseBody(result.body, result.headers)
+          ? formatBody(result.body)
+          : result.body;
         updateTab(tabId, (currentTab) => ({
           ...currentTab,
-          response: { ...result, body: formatBody(result.body) },
+          response: { ...result, body: responseBody },
           error: "",
           isSending: false,
         }));

@@ -9,6 +9,8 @@ import {
   methods,
 } from "../types";
 
+const AUTO_FORMAT_RESPONSE_LIMIT_BYTES = 256 * 1024;
+
 export function shellQuote(value: string): string {
   const escaped = value.replace(/'/g, `'"'"'`);
   return `'${escaped}'`;
@@ -144,6 +146,20 @@ export function formatDuration(durationMs: number): string {
 
 export function getBodySizeBytes(body: string): number {
   return new TextEncoder().encode(body).length;
+}
+
+export function shouldAutoFormatResponseBody(body: string, headers: Record<string, string>): boolean {
+  if (!body.trim()) {
+    return false;
+  }
+
+  if (getBodySizeBytes(body) > AUTO_FORMAT_RESPONSE_LIMIT_BYTES) {
+    return false;
+  }
+
+  const contentType = Object.entries(headers).find(([key]) => key.toLowerCase() === "content-type")?.[1] ?? "";
+  const normalizedContentType = contentType.toLowerCase();
+  return normalizedContentType.includes("application/json") || normalizedContentType.includes("+json");
 }
 
 export function formatBytes(bytes: number): string {

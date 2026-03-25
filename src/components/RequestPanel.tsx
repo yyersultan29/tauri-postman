@@ -1,5 +1,5 @@
 import { FormEvent, memo } from "react";
-import { JsonCodeEditor } from "./JsonCodeEditor";
+import { LazyJsonCodeEditor } from "./LazyJsonCodeEditor";
 import { HttpMethod, NoticeState, RequestTab, Theme, methods } from "../types";
 
 type RequestPanelProps = {
@@ -101,7 +101,7 @@ export const RequestPanel = memo(function RequestPanel({
             <summary>Body</summary>
             <label className="field">
               <span>JSON or text body</span>
-              <JsonCodeEditor
+              <LazyJsonCodeEditor
                 value={activeTab.body}
                 onChange={onBodyChange}
                 theme={theme}

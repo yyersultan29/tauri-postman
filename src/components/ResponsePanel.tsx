@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { JsonCodeEditor } from "./JsonCodeEditor";
+import { LazyJsonCodeEditor } from "./LazyJsonCodeEditor";
 import { Theme, HttpResponsePayload } from "../types";
 import { formatBytes, formatDuration, getBodySizeBytes, getDurationTone, getStatusTone } from "../lib/tab-utils";
 
@@ -55,7 +55,11 @@ export const ResponsePanel = memo(function ResponsePanel({
 
       <label className="field">
         <span>Body</span>
-        <JsonCodeEditor value={response?.body ?? ""} theme={theme} height="360px" jsonMode={responseJsonMode} readOnly />
+        {response ? (
+          <LazyJsonCodeEditor value={response.body} theme={theme} height="360px" jsonMode={responseJsonMode} readOnly />
+        ) : (
+          <textarea value="" readOnly rows={12} placeholder="Response body will appear here" />
+        )}
       </label>
     </section>
   );

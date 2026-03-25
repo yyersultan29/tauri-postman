@@ -1,6 +1,6 @@
 [package]
 name = "tauri-postman-lite"
-version = "0.1.2"
+version = "0.1.3"
 description = "ReqLite desktop API client"
 authors = ["you"]
 edition = "2021"
